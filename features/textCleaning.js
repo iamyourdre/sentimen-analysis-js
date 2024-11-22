@@ -1,8 +1,8 @@
-import fs from 'fs'
+import fs from 'fs';
 import fse from 'fs-extra';
+import path from 'path';
 
 export function textCleaning(inputPath) {
-
     // Membuka file input file dan baca baris per baris
     const fileContent = fs.readFileSync(inputPath, 'utf8');
     const inputStreamLines = fileContent.split('\n').map(line => line.trim());
@@ -16,11 +16,14 @@ export function textCleaning(inputPath) {
         label.push(parts[1]);
     });
 
-    // Buat file output
-    const outputPath = 'output/json/result-textCleaning.json';
-    fse.writeJsonSync(outputPath, {text, label}, { spaces: 2, EOL: '\r\n' })
+    // Ambil nama file dari inputPath dan buat outputPath secara dinamis
+    const fileName = path.basename(inputPath, path.extname(inputPath));
+    const outputPath = `output/json/${fileName}-clean.json`;
 
-    // // Baca konten dari file output
+    // Buat file output
+    fse.writeJsonSync(outputPath, { text, label }, { spaces: 2, EOL: '\r\n' });
+
+    // Baca konten dari file output
     let data = fse.readJSONSync(outputPath, { throws: false });
 
     // Pembersihan data teks dengan RegEx
@@ -52,10 +55,9 @@ export function textCleaning(inputPath) {
         return res;
     });
 
-    // // Tulis kembali hasil yang sudah dibersihkan ke file output
+    // Tulis kembali hasil yang sudah dibersihkan ke file output
     fse.writeJSONSync(outputPath, data, { spaces: 2, EOL: '\r\n' });
 
     console.log("[DONE] textCleaning");
     return outputPath;
-
 }
